@@ -1,4 +1,7 @@
-## AST SMT StringOps & Uninterpreted Functions
+## MadamASTra
+
+<img src="docs/res/MadamASTra1.png" height="300">
+<img src="docs/res/MadamASTra2.png" height="300">
 
 Project for the class "Automated Software Testing FS2023"
 
