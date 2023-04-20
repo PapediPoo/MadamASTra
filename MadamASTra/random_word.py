@@ -38,12 +38,15 @@ class WordGenerator():
     def __init__(self) -> None:
         pass
 
-    def generate(self) -> str:
+    def generate(self, length=None) -> str:
         '''
         Tries to fetch a random word online.
         If it fails, falls back to a static offline list
         '''
-        response = requests.get(self.RANDOMWORDURL, timeout=1)
+        request_url = self.RANDOMWORDURL
+        if length is not None:
+            request_url += f"?length={length}"
+        response = requests.get(request_url, timeout=1)
         if response.ok:
             return json.loads(response.content.decode('utf-8'))[0]
         return self.__generate_offline()
