@@ -120,8 +120,21 @@ def get_z3_formulas(s1, s2):
     for const in re.findall("str_const_\d*", z3_expression):
         generated_z3_formula = "(declare-const " + const + " String)\n" + generated_z3_formula
         reference_z3_formula = reference_z3_formula.replace(const, "\"" + consts_to_vals[const] + "\"") # surround string with " "
-    print(reference_z3_formula)
+    # print(reference_z3_formula)
     return generated_z3_formula, reference_z3_formula
+
+
+def wrap_formula(formula : str)-> str:
+    '''
+    Wraps a formula into the definitions for insert, remove and replace and adds check-sat at the end
+    '''
+    full_input = ""
+    full_input += insert_in_smt + "\n"
+    full_input += remove_in_smt + "\n"
+    full_input += replace_in_smt + "\n"
+    full_input += formula + "\n"
+    full_input += "(check-sat)\n"
+    return full_input
 
 # Writes a syntactically correct SMT file header containing the following:
 # - An option that sets which string solver to use

@@ -4,7 +4,7 @@ It provides the Z3Driver class, which when given a SMT string runs Z3 and return
 '''
 
 import subprocess
-from .CPrinter import print_content, print_warning
+from c_printer import print_content, print_warning
 
 class Z3Driver():
     '''
@@ -14,20 +14,28 @@ class Z3Driver():
     '''
     Z3INDENT = 3
 
-    def __init__(self, verbose=False) -> None:
+    def __init__(self, verbose=False, timeout=5) -> None:
         self.set_verbose(verbose)
+        self.set_timeout(timeout)
 
-    def set_verbose(self, value : bool):
+
+    def set_verbose(self, value : bool) -> None:
         '''
         summary: defines the logging behaviour of the driver
         '''
         self.verbose = value
+    
+    def set_timeout(self, value : int) -> None:
+        '''
+        summary: defines the max amount of time that Z3 is allowed to take for finish
+        '''
+        self.timeout = value
 
     def run(self, smt_expr : str) -> str:
         '''
-        given an SMT expression runs Z3 and returns its findings
+        summary: given an SMT expression runs Z3 and returns its findings
         '''
-        command = 'echo "' + smt_expr + '" | z3 -in -smt2'
+        command = 'echo \'' + smt_expr.replace("'", "\"") + f"\' | z3 -in -smt2 -T:{self.timeout}"
         result = subprocess.run(command, capture_output=True, shell=True, check=False)
         err_decoded = result.stderr.decode()
         if len(err_decoded) > 0:
@@ -35,5 +43,5 @@ class Z3Driver():
             if self.verbose:
                 print_content(err_decoded)
 
-        result_readable = smt_expr + " is " + result.stdout.decode('utf-8')
+        result_readable = result.stdout.decode('utf-8')
         return result_readable
