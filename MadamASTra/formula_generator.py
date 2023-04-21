@@ -1,3 +1,4 @@
+import random
 import re
 import os
 
@@ -35,10 +36,32 @@ replace_in_smt = "(define-fun replace ((to_insert String) (index Int) (source St
 
 # You can also debug via (simplify (replace r 2 (replace a 1 (replace b 0 "foo"))))
 
+# Basic DP algorithm that computes the minimum edit distance to transform s1 into s2
+def just_compute_edit_distance(s1 : str, s2 : str) -> int:
+    
+    dp = [[0 for x in range(len(s1) + 1)] for x in range(len(s2) + 1)]
+
+    # Initialization:
+    for i in range(len(s1) + 1):
+        dp[0][i] = i
+    for j in range(len(s2) + 1):
+        dp[j][0] = j
+
+    # Recursion:
+    for i in range(1, len(s1) + 1):
+        for j in range(1, len(s2) + 1):
+            if s1[i-1] == s2[j-1]: # do nothing
+                dp[j][i] = dp[j-1][i-1]
+            else:
+                min_dist = min([dp[j][i-1], dp[j-1][i], dp[j-1][i-1]])
+                dp[j][i] = min_dist + 1
+    
+    return dp[len(s2)][len(s1)]
 
 # Basic DP algorithm that computes the minimum edit distance to transform s1 into s2,
-# which builds a corresponding SMT-formula on the go.
-def compute_edit_distance(s1, s2):
+# while building a corresponding SMT-formula on the go.
+def compute_edit_distance_and_generate_formula(s1 : str, s2 : str) -> str:
+    
     global n_int_consts, n_str_consts, consts_to_vals
     # Replaces constant values (e.g. 0, "a") in the formula with unique variables (e.g. int_const_0, str_const_0),
     # stores this information in consts_to_vals.
@@ -78,20 +101,20 @@ def compute_edit_distance(s1, s2):
             else:
                 min_dist = min([dp[j][i-1], dp[j-1][i], dp[j-1][i-1]])
                 dp[j][i] = min_dist + 1
-                if min_dist == dp[j][i-1]: # remove
-                    formulas[j][i] = "(remove int_const_" + str(n_int_consts) + " " + formulas[j][i-1] + ")"
-                    consts_to_vals["int_const_" + str(n_int_consts)] = str(i - n_removals[j][i-1] + n_insertions[j][i-1] - 1)
-                    n_int_consts += 1
-                    n_removals[j][i] = n_removals[j][i-1] + 1
-                    n_insertions[j][i] = n_insertions[j][i-1]
-                elif min_dist == dp[j-1][i]: # insert
+                if min_dist == dp[j-1][i]: # insert
                     formulas[j][i] = "(insert str_const_" + str(n_str_consts) + " int_const_" + str(n_int_consts) + " " + formulas[j-1][i] + ")"
                     consts_to_vals["str_const_" + str(n_str_consts)] = s2[j-1]
                     n_str_consts += 1
                     consts_to_vals["int_const_" + str(n_int_consts)] = str(i - n_removals[j-1][i] + n_insertions[j-1][i])
                     n_int_consts += 1
                     n_removals[j][i] = n_removals[j-1][i]
-                    n_insertions[j][i] = n_insertions[j-1][i] + 1  
+                    n_insertions[j][i] = n_insertions[j-1][i] + 1
+                elif min_dist == dp[j][i-1]: # remove
+                    formulas[j][i] = "(remove int_const_" + str(n_int_consts) + " " + formulas[j][i-1] + ")"
+                    consts_to_vals["int_const_" + str(n_int_consts)] = str(i - n_removals[j][i-1] + n_insertions[j][i-1] - 1)
+                    n_int_consts += 1
+                    n_removals[j][i] = n_removals[j][i-1] + 1
+                    n_insertions[j][i] = n_insertions[j][i-1] 
                 else: # replace
                     formulas[j][i] = "(replace str_const_" + str(n_str_consts) + " int_const_" + str(n_int_consts) + " " + formulas[j-1][i-1] + ")"
                     consts_to_vals["str_const_" + str(n_str_consts)] = s2[j-1]
@@ -101,7 +124,7 @@ def compute_edit_distance(s1, s2):
                     n_removals[j][i] = n_removals[j-1][i-1]
                     n_insertions[j][i] = n_insertions[j-1][i-1]
 
-    return dp[len(s2)][len(s1)], "(assert (= " + formulas[len(s2)][len(s1)] + " \"" + s2 + "\"))"
+    return "(assert (= " + formulas[len(s2)][len(s1)] + " \"" + s2 + "\"))"
 
 # Returns SMT formulas using insert, remove and replace to get from s1 to s2.
 # generated_z3_formula is of the form "(assert (= (replace str_const_13 int_const_24 (replace str_const_11 int_const_20 (replace str_const_8 int_const_16 "foo"))) "bar"))"
@@ -109,9 +132,14 @@ def compute_edit_distance(s1, s2):
 # (note that all the constant definitions are included as well)
 # reference_z3_formula is of the form "(assert (= (replace r 2 (replace a 1 (replace b 0 "foo"))) "bar"))"
 # -> it is intended to check the correctness of the series of inserts/removes/replacements that we computed
-def get_z3_formulas(s1, s2):
-    global n_int_consts
-    edit_distance, z3_expression = compute_edit_distance(s1, s2)
+# Both formulas are SAT by construction.
+def get_sat_z3_formulas(s1 : str, s2 : str):
+    # TODO: Use Z3 to verify that reference_z3_formula evaluates to true (i.e., is SAT)
+    # TODO: Maybe replace some occurrences of "int_const_x" and/or "str_const_y" 
+    #       in generated_z3_formula with their corresponding values from consts_to_vals,
+    #       because otherwise Z3 may take veeeery long and eventually return unknown.
+    #       => How much of our rewriting do we have to "expose" for Z3 to succeed?
+    z3_expression = compute_edit_distance_and_generate_formula(s1, s2)
     generated_z3_formula = z3_expression
     reference_z3_formula = z3_expression
     for const in re.findall("int_const_\d*", z3_expression):
@@ -122,52 +150,49 @@ def get_z3_formulas(s1, s2):
         reference_z3_formula = reference_z3_formula.replace(const, "\"" + consts_to_vals[const] + "\"") # surround string with " "
     return generated_z3_formula, reference_z3_formula
 
+# Returns an SMT formula using insert, remove and replace that make it IMPOSSIBLE to get from s1 to s2.
+# generated_z3_formula is of the form "(assert (= (replace str_const_13 int_const_24 (replace str_const_11 int_const_20 "foo")) "bar"))"
+# -> it is intended to be used to stress-test Z3 
+# (note that all the constant definitions are included as well)
+# The formula is UNSAT by construction, as it uses less insert/remove/replace operations than would be minimally needed to get from s1 to s2.
+def get_unsat_z3_formula(s1 : str, s2 : str) -> str:
+    edit_distance = just_compute_edit_distance(s1, s2)
+    formula = "\"" + s1 + "\""
+    declarations = ""
+    constraints = ""
+    for i in range(edit_distance - 1): # by adding edit_distance - 1 insert/remove/replace operations we ensure that the formula will be UNSAT
+        random_number = random.randint(0,2)
+        if random_number == 1: # insert
+            formula = "(insert str_const_" + str(i) + " int_const_" + str(i) + " " + formula + ")"
+            declarations += "(declare-const int_const_" + str(i) + " Int)\n"
+            declarations += "(declare-const str_const_" + str(i) + " String)\n"
+            constraints += "(assert (= (str.len str_const_" + str(i) + ") 1))\n"
+        elif random_number == 0: # remove
+            formula = "(remove int_const_" + str(i) + " " + formula + ")"
+            declarations += "(declare-const int_const_" + str(i) + " Int)\n"
+        else: # replace
+            formula = "(replace str_const_" + str(i) + " int_const_" + str(i) + " " + formula + ")"
+            declarations += "(declare-const int_const_" + str(i) + " Int)\n"
+            declarations += "(declare-const str_const_" + str(i) + " String)\n"
+            constraints += "(assert (= (str.len str_const_" + str(i) + ") 1))\n"
+    formula = "(assert (= " + formula + " \"" + s2 + "\"))"
+    generated_z3_formula = declarations + "\n" + constraints + "\n" + formula
+    return generated_z3_formula
 
-def wrap_formula(formula : str)-> str:
+
+def wrap_formula(formula : str, string_solver : str = "seq") -> str:
     '''
     Wraps a formula into the definitions for insert, remove and replace and adds check-sat at the end
     '''
     full_input = ""
+    if string_solver == "z3str3":
+        full_input += "(set-option :smt.string_solver z3str3) ; set the string solver to be the z3str3 solver\n"
+    else:
+        full_input += "(set-option :smt.string_solver seq) ; set the string solver to be the seq solver (default)\n"
+    # TODO: Add some further options, e.g. max compute time or max memory
     full_input += insert_in_smt + "\n"
     full_input += remove_in_smt + "\n"
     full_input += replace_in_smt + "\n"
     full_input += formula + "\n"
     full_input += "(check-sat)\n"
     return full_input
-
-# Writes a syntactically correct SMT file header containing the following:
-# - An option that sets which string solver to use
-# - Definitions for the insert, remove and replace functions
-# TODO: Change this to return a string instead of write a file?
-# TODO: Add some further options, e.g. max compute time or max memory
-def set_up_smt_file(file_name, string_solver):
-    if os.path.exists(file_name):
-        os.remove(file_name)
-    out = open(file_name, "w")
-    if string_solver == "z3str3":
-        out.write("(set-option :smt.string_solver z3str3) ; set the string solver to be the z3str3 solver\n\n")
-    else:
-        out.write("(set-option :smt.string_solver seq) ; set the string solver to be the seq solver (default)\n\n")
-    out.write(insert_in_smt + "\n")
-    out.write(remove_in_smt + "\n")
-    out.write(replace_in_smt + "\n\n")
-    return out
-
-if __name__ == "__main__":
-    words = ["Robin", "Wobin", "Globin", "Schmidiger", "Schmideger"]
-    # TODO: When to extend words? Also, we should start with "simple" cases and then go towards more difficult ones...
-    while(True): # TODO: Add some condition?
-        n_int_consts, n_str_consts, consts_to_vals = 0, 0, {} # reset bookkeeping
-        out = set_up_smt_file("test.smt", "seq")
-        for word in words: # TODO: Choose two or more random words instead of considering all combinations
-            for other_word in words:
-                generated_z3_formula, reference_z3_formula = get_z3_formulas(word, other_word)
-                # TODO: Use Z3 to verify that reference_z3_formula evaluates to true (i.e., is SAT)
-                # TODO: Maybe replace some occurrences of "int_const_x" and/or "str_const_y" 
-                #       in generated_z3_formula with their corresponding values from consts_to_vals,
-                #       because otherwise Z3 may take veeeery long and eventually return unknown.
-                #       => How much of our rewriting do we have to "expose" for Z3 to succeed?
-                out.write(generated_z3_formula + "\n\n")
-        out.write("(check-sat)")
-        # TODO: Call Z3 on out. If UNSAT -> found a bug :)
-        break
