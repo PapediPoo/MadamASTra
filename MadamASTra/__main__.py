@@ -6,7 +6,7 @@ This script is responsible for for generating and running the different subsyste
 
 import argparse
 from random import randint
-from formula_generator import get_z3_formulas, wrap_formula
+from formula_generator import get_sat_z3_formulas, get_unsat_z3_formula, wrap_formula
 
 from z3_driver import Z3Driver
 from random_word import WordGenerator
@@ -43,7 +43,10 @@ def main() -> None:
         word2 = wordgenerator.generate(args.word_length + randint(-args.word_randomness, args.word_randomness))
         print_content(f"words: {word1}, {word2}")
 
-        generated_z3_formula, _ = get_z3_formulas(word1, word2)
+        if run%2 == 0: # test SAT
+            generated_z3_formula, _ = get_sat_z3_formulas(word1, word2)
+        else: # test UNSAT
+            generated_z3_formula = get_unsat_z3_formula(word1, word2)
         full_input = wrap_formula(generated_z3_formula)
         z3_result = z3_driver.run(full_input)
         print_content("Z3 Response: " + z3_result)
