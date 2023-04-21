@@ -118,9 +118,8 @@ def get_z3_formulas(s1, s2):
         generated_z3_formula = "(declare-const " + const + " Int)\n" + generated_z3_formula
         reference_z3_formula = reference_z3_formula.replace(const, consts_to_vals[const])
     for const in re.findall("str_const_\d*", z3_expression):
-        generated_z3_formula = "(declare-const " + const + " String)\n" + generated_z3_formula
+        generated_z3_formula = "(declare-const " + const + " String)\n" + "(assert (= (str.len " + const + ") 1))\n" + generated_z3_formula # declare string constant and enforce that is has length 1
         reference_z3_formula = reference_z3_formula.replace(const, "\"" + consts_to_vals[const] + "\"") # surround string with " "
-    # print(reference_z3_formula)
     return generated_z3_formula, reference_z3_formula
 
 
