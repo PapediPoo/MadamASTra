@@ -32,7 +32,7 @@ def print_warning(content : str) -> None:
     '''prints a warning in a big centered block'''
     print(
         WARNING + BOXGUARDS[0] +
-        ("WARNING!" + content).upper().center(BOXWIDTH, BOXFILL) +
+        ("WARNING! " + content).upper().center(BOXWIDTH, BOXFILL) +
         BOXGUARDS[1] + ENDC)
 
 def print_content(content : str) -> None:
