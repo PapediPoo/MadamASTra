@@ -6,4 +6,4 @@ by Pascal Strebel and Robin Schmidiger
 
 [Project Proposal](docs/ProjectProposal.pdf)
 
-[Project Report](docs/ProjectReport.pdf)
+[Progress Report](docs/ProgressReport.pdf)
