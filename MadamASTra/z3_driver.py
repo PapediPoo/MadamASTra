@@ -1,6 +1,8 @@
 '''
 This module is responsible for abstracting the interaction between Z3 and MadamASTra.
 It provides the Z3Driver class, which when given a SMT string runs Z3 and returns the result.
+It does not have any knowledge of the SMT language, and does not know how to generate SMT formulas. 
+It just handles the process of running Z3.
 '''
 
 import subprocess

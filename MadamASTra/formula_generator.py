@@ -187,8 +187,11 @@ def wrap_formula(formula : str, string_solver : str = "seq") -> str:
     full_input = ""
     if string_solver == "z3str3":
         full_input += "(set-option :smt.string_solver z3str3) ; set the string solver to be the z3str3 solver\n"
-    else:
+    elif string_solver == "seq":
         full_input += "(set-option :smt.string_solver seq) ; set the string solver to be the seq solver (default)\n"
+    else:
+        print("ERROR: Invalid string solver.")
+        raise ValueError("Invalid string solver. Only z3str3 and seq are supported.")
     # TODO: Add some further options, e.g. max compute time or max memory
     full_input += insert_in_smt + "\n"
     full_input += remove_in_smt + "\n"
