@@ -1,1 +1,6 @@
 unclad, lying, solver: z3str3, mode: unsat, 
+livest, call, solver: seq, mode: unsat, 
+repegs, silo, solver: seq, mode: unsat, 
+milch, awee, solver: z3str3, mode: unsat, 
+purges, neep, solver: z3str3, mode: unsat, 
+hokku, pars, solver: z3str3, mode: unsat, 
