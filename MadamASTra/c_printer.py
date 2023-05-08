@@ -3,10 +3,10 @@ Responsible for printing consistently over the whole program
 '''
 import textwrap
 
-BOXWIDTH = 15
+BOXWIDTH = 20
 INDENT = 3
-BOXGUARDS = ("[", "]")
-BOXFILL = "_"
+BOXGUARDS = ("[ ", " ]")
+BOXFILL = " "
 INDENTGUARD = "|"
 
 # colors
@@ -14,6 +14,7 @@ HEADER = '\033[95m'
 OKBLUE = '\033[94m'
 OKCYAN = '\033[96m'
 OKGREEN = '\033[92m'
+OKYELLOW = '\u001b[33m'
 WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
@@ -42,3 +43,11 @@ def print_content(content: str) -> None:
     print(
         INDENTGUARD
         + textwrap.indent(content, " " * INDENT))
+
+def print_summary(contant: str) -> None:
+    '''prints a summary'''
+    print(
+        OKYELLOW
+        + BOXGUARDS[0]
+        + contant.center(BOXWIDTH, BOXFILL)
+        + BOXGUARDS[1] + ENDC)

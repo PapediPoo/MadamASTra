@@ -44,6 +44,7 @@ def run(args: argparse.Namespace) -> None:
         ("sat", "z3str3"),
         ("unsat", "z3str3")]
 
+    print_content(f"running {args.runs} times")
     for run_no in range(args.runs):
         print_title(f"run {run_no+1}")
 
