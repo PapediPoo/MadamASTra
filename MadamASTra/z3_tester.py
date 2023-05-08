@@ -5,7 +5,7 @@ It also compares the result of Z3 to the expected result.
 
 from formula_generator import get_sat_z3_formulas, get_unsat_z3_formula, wrap_formula
 from z3_driver import Z3Driver
-from c_printer import print_content, print_warning
+from c_printer import print_content, print_warning, print_summary
 
 class Z3Tester(object):
     '''
@@ -23,6 +23,7 @@ class Z3Tester(object):
         4. if Z3 made a mistake, it is logged in error_log
         returns: True if Z3 made a mistake, False otherwise
         '''
+
         print(f"mode: {mode_config}, solver: {solver_config}")
         if mode_config == "sat":
             generated_z3_formula, _ = get_sat_z3_formulas(word1, word2)
@@ -50,7 +51,7 @@ class Z3Tester(object):
         '''
         saves the error log to "bugs.txt"
         '''
-        print_content(f"Z3 made {len(self.error_log)} mistakes")
+        print_summary(f"Z3 made {len(self.error_log)} mistakes")
         with open("bugs.txt", "a", encoding='utf-8') as f:
             for bug in self.error_log:
                 for e in bug:

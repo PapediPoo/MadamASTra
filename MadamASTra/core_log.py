@@ -7,7 +7,7 @@ module is to debug both MadamASTra and Z3.
 
 import argparse
 from formula_generator import get_sat_z3_formulas, get_unsat_z3_formula, wrap_formula
-from c_printer import print_title, print_content, print_warning
+from c_printer import print_title, print_content, print_warning, print_summary
 
 def add_parser(parser: argparse.ArgumentParser) -> None:
     '''
@@ -25,6 +25,7 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
                         type=str,
                         default="sat",
                         help="the mode to use. default: sat")
+    parser.add_argument("-f", "--file", type=str, help="the file to write the SMT formula to")
 
 
 def run(args: argparse.Namespace) -> None:
@@ -49,7 +50,16 @@ def run(args: argparse.Namespace) -> None:
     print_content(full_formula)
 
     # write to file
-    with open(f"{args.word1}_{args.word2}_{args.m}_{args.s}.smt2", "w", encoding='utf-8') as f:
+    if args.file:
+        file_name = args.file
+        file_name = "".join(x for x in file_name if x.isalnum() or x in ["_", "."])
+        if not file_name.endswith(".smt2"):
+            file_name += ".smt2"
+    else:
+        file_name = f"{args.word1}_{args.word2}_{args.m}_{args.s}.smt2"
+    with open(file_name, "w", encoding='utf-8') as f:
         f.write(full_formula)
+
+    print_summary(f"written to {file_name}")
 
     print_title("done")
