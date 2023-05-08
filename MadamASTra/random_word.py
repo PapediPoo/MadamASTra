@@ -7,31 +7,31 @@ import requests
 
 class WordGenerator():
     '''
-    Generates random words by either 
+    Generates random words by either
     1. getting them online
-    2. using a list of offline words 
+    2. using a list of offline words
     '''
     RANDOMWORDURL = "https://random-word-api.herokuapp.com/word"
     OFFLINEWORDS = [
-        "which", "apple", "chemical", "beautiful", "fell", 
-        "broken", "scientist", "party", "farm", "religious", 
-        "sit", "likely", "basic", "solid", "mud", 
-        "buried", "though", "diameter", "mad", "origin", 
-        "elephant", "brush", "stiff", "environment", "chosen", 
-        "tank", "stick", "amount", "development", "officer", 
-        "offer", "fully", "poet", "water", "swim", 
-        "aloud", "pond", "shape", "tales", "dirty", 
-        "battle", "lunch", "sitting", "eager", "twelve", 
-        "stone", "finger", "once", "bag", "short", 
-        "hearing", "desk", "composition", "asleep", "rear", 
-        "slowly", "hardly", "save", "quietly", "extra", 
-        "mostly", "everything", "top", "different", "plane", 
-        "vegetable", "helpful", "exactly", "trade", "diagram", 
-        "tool", "fence", "rest", "sweet", "blank", 
-        "everything", "live", "you", "age", "date", 
-        "offer", "wolf", "wrote", "try", "football", 
-        "box", "late", "war", "increase", "state", 
-        "gulf", "once", "system", "after", "half", 
+        "which", "apple", "chemical", "beautiful", "fell",
+        "broken", "scientist", "party", "farm", "religious",
+        "sit", "likely", "basic", "solid", "mud",
+        "buried", "though", "diameter", "mad", "origin",
+        "elephant", "brush", "stiff", "environment", "chosen",
+        "tank", "stick", "amount", "development", "officer",
+        "offer", "fully", "poet", "water", "swim",
+        "aloud", "pond", "shape", "tales", "dirty",
+        "battle", "lunch", "sitting", "eager", "twelve",
+        "stone", "finger", "once", "bag", "short",
+        "hearing", "desk", "composition", "asleep", "rear",
+        "slowly", "hardly", "save", "quietly", "extra",
+        "mostly", "everything", "top", "different", "plane",
+        "vegetable", "helpful", "exactly", "trade", "diagram",
+        "tool", "fence", "rest", "sweet", "blank",
+        "everything", "live", "you", "age", "date",
+        "offer", "wolf", "wrote", "try", "football",
+        "box", "late", "war", "increase", "state",
+        "gulf", "once", "system", "after", "half",
         "far", "worse", "his", "brass", "modern"
     ]
 

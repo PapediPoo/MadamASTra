@@ -21,20 +21,24 @@ BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 
 
-def print_title(content : str) -> None:
+def print_title(content: str) -> None:
     '''prints the title in a big centered block'''
     print(
-        HEADER + BOXGUARDS[0]
-        + content.upper().center(BOXWIDTH, BOXFILL) +
-        BOXGUARDS[1] + ENDC)
+        HEADER
+        + BOXGUARDS[0]
+        + content.upper().center(BOXWIDTH, BOXFILL)
+        + BOXGUARDS[1] + ENDC)
 
-def print_warning(content : str) -> None:
+def print_warning(content: str) -> None:
     '''prints a warning in a big centered block'''
     print(
-        WARNING + BOXGUARDS[0] +
-        ("WARNING! " + content).upper().center(BOXWIDTH, BOXFILL) +
-        BOXGUARDS[1] + ENDC)
+        WARNING
+        + BOXGUARDS[0]
+        + ("WARNING! " + content).upper().center(BOXWIDTH, BOXFILL)
+        + BOXGUARDS[1] + ENDC)
 
-def print_content(content : str) -> None:
+def print_content(content: str) -> None:
     '''prints content with an indent'''
-    print(INDENTGUARD + textwrap.indent(content, " " * INDENT))
+    print(
+        INDENTGUARD
+        + textwrap.indent(content, " " * INDENT))

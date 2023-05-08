@@ -23,7 +23,7 @@ class Z3Tester(object):
         4. if Z3 made a mistake, it is logged in error_log
         returns: True if Z3 made a mistake, False otherwise
         '''
-        print(f"mode: {mode_config}, solver: {solver_config}")    
+        print(f"mode: {mode_config}, solver: {solver_config}")
         if mode_config == "sat":
             generated_z3_formula, _ = get_sat_z3_formulas(word1, word2)
             wrong_response_config = "unsat"
@@ -32,7 +32,7 @@ class Z3Tester(object):
             wrong_response_config = "sat"
         else:
             raise ValueError("mode_config must be either \"sat\" or \"unsat\"")
-        
+
         full_input = wrap_formula(generated_z3_formula, solver_config)
 
         # run Z3
