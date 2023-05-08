@@ -21,17 +21,19 @@ def main() -> None:
     print_title("the clairvoyant will now tell you your fortune")
     # setup arg parser
     parser = argparse.ArgumentParser(
-        prog="MadamASTra", 
-        description="MadamASTra is a tool for finding bugs in Z3"
-        )
+        prog="MadamASTra",
+        description="MadamASTra is a tool for finding bugs in Z3")
     subparsers = parser.add_subparsers()
     add_search_parser(subparsers.add_parser("search", help="search for bugs in Z3"))
     add_try_parser(subparsers.add_parser("try", help="try the 2 provided words on Z3"))
-    add_log_parser(subparsers.add_parser("log", help="print the SMT file that would be generated for the 2 provided words"))
+    add_log_parser(subparsers.add_parser("log", help="print the SMT file that would be generated for the 2 words"))
 
     args = parser.parse_args()
-    args.run_method(args)
-    
+    if hasattr(args, "run_method"):
+        args.run_method(args)
+    else:
+        parser.print_help()
+
 
 if __name__ == "__main__":
     main()

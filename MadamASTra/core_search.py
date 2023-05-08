@@ -1,6 +1,6 @@
 """
-This module contains the core search functionality of MadamASTra. 
-It is responsible for running the Z3Tester, such that it finds new 
+This module contains the core search functionality of MadamASTra.
+It is responsible for running the Z3Tester, such that it finds new
 bugs in Z3 by trying random words and configurations on Z3.
 """
 
@@ -16,7 +16,10 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(run_mode="search")
     parser.set_defaults(run_method=run)
     parser.add_argument("-r", "--runs", type=int, default=5, help="number of times Z3 should be tested")
-    parser.add_argument("-wl", "--word-length", type=int, default=5, help="length of the generated words. Longer words => Z3 slower")
+    parser.add_argument("-wl", "--word-length",
+                        type=int,
+                        default=5,
+                        help="generated word length. Longer words => Z3 slower")
     parser.add_argument("-wr", "--word-randomness", type=int, default=1, help="randomness of the length of words")
     parser.add_argument("-t", "--timeout", type=int, default=30, help="Z3 timeout [seconds]. default: 30")
     parser.add_argument("-v", "--verbose", action="store_true", help="makes the command line output more verbose")

@@ -69,8 +69,7 @@ def run(args: argparse.Namespace) -> None:
         solvers = ["z3str3"]
     else:
         raise Exception(
-            "unknown solver. Z3Tester only supports seq and z3str3"
-            )
+            "unknown solver. Z3Tester only supports seq and z3str3")
 
     configs = list(product(modes, solvers))
 
@@ -82,8 +81,7 @@ def run(args: argparse.Namespace) -> None:
         while not z3_tester.test(
                 args.word1,
                 args.word2,
-                *configs[config_index]
-                ):
+                *configs[config_index]):
             config_index = (config_index + 1) % len(configs)
             print_title("retrying")
     else:

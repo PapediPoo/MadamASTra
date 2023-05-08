@@ -17,15 +17,15 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(run_method=run)
     parser.add_argument("word1", type=str, help="the first word")
     parser.add_argument("word2", type=str, help="the second word")
-    parser.add_argument("-s", "-solver", 
-                        type=str, 
-                        default="z3str3", 
+    parser.add_argument("-s", "-solver",
+                        type=str,
+                        default="z3str3",
                         help="the solver to use. default: z3str3")
-    parser.add_argument("-m", "-mode", 
-                        type=str, 
-                        default="sat", 
+    parser.add_argument("-m", "-mode",
+                        type=str,
+                        default="sat",
                         help="the mode to use. default: sat")
-    
+
 
 def run(args: argparse.Namespace) -> None:
     '''
