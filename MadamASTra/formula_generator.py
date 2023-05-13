@@ -5,36 +5,80 @@ import os
 # Bookkeeping over multiple calls of compute_edit_distance:
 n_int_consts, n_str_consts, consts_to_vals = 0, 0, {}
 
-insert_in_smt = "(define-fun insert ((to_insert String) (index Int) (source String)) String (str.++ (str.substr source 0 index) to_insert (str.substr source index (- (str.len source) index))))"
+insert_in_smt = "(define-fun insert ((to_insert String) (index Int) (source String)) String\
+                    (ite\
+                        (and (>= index 0) (<= index (str.len source)))\
+                        (str.++ (str.substr source 0 index) to_insert (str.substr source index (str.len source)))\
+                        source\
+                    )\
+                )"
 # insert a b c -> insert a at position b in c 
 # (e.g. insert "h" 0 "allo" -> "hallo")
 
-remove_in_smt = "(define-fun remove ((index Int) (source String)) String (str.++ (str.substr source 0 index) (str.substr source (+ index 1) (- (str.len source) index))))"
+remove_in_smt = "(define-fun remove ((index Int) (source String)) String\
+                    (ite\
+                        (and (>= index 0) (< index (str.len source)))\
+                        (str.++ (str.substr source 0 index) (str.substr source (+ index 1) (str.len source)))\
+                        source\
+                    )\
+                )"
 # remove a b -> remove character at position a in b 
 # (e.g. remove 0 "hallo" -> "allo")
 
-replace_in_smt = "(define-fun replace ((to_insert String) (index Int) (source String)) String (str.++ (str.substr source 0 index) to_insert (str.substr source (+ index 1) (- (str.len source) index))))"
+replace_in_smt = "(define-fun replace ((to_insert String) (index Int) (source String)) String\
+                    (ite\
+                        (and (>= index 0) (< index (str.len source)))\
+                        (str.++ (str.substr source 0 index) to_insert (str.substr source (+ index 1) (str.len source)))\
+                        source\
+                    )\
+                )"
 # replace a b c -> replace character at position b with a in c 
 # (e.g. replace "f" 0 "boo" -> "foo")
 
-# TODO: Test these implementations:
-
-# (assert (= (insert "a" 0 "") "a"))
-# (assert (= (insert "a" 0 "b") "ab"))
-# (assert (= (insert "b" 1 "a") "ab"))
-# (assert (= (insert "b" 2 "foo") "fobo"))
-
-# (assert (= (remove 0 "a") ""))
-# (assert (= (remove 0 "ab") "b"))
-# (assert (= (remove 1 "ab") "a"))
-# (assert (= (remove 2 "foo") "fo"))
-
-# (assert (= (replace "b" 0 "a") "b"))
-# (assert (= (replace "a" 1 "ab") "aa"))
-# (assert (= (replace "b" 1 "ab") "ab"))
-# (assert (= (replace "b" 2 "foo") "fob"))
-
 # You can also debug via (simplify (replace r 2 (replace a 1 (replace b 0 "foo"))))
+
+def get_formula_for_checking_operator_definitions():
+     formula = [
+            "(assert (= (insert \"a\" 0 \"\") \"a\"))",
+            "(assert (= (insert \"a\" 1 \"\") \"\"))",
+            "(assert (= (insert \"a\" -1 \"\") \"\"))",
+            "(assert (= (insert \"a\" 0 \"b\") \"ab\"))",
+            "(assert (= (insert \"a\" 1 \"b\") \"ba\"))",
+            "(assert (= (insert \"a\" 2 \"b\") \"b\"))",
+            "(assert (= (insert \"a\" -1 \"b\") \"b\"))",
+            "(assert (= (insert \"b\" 1 \"a\") \"ab\"))",
+            "(assert (= (insert \"b\" -242 \"foo\") \"foo\"))",
+            "(assert (= (insert \"b\" 0 \"foo\") \"bfoo\"))",
+            "(assert (= (insert \"b\" 1 \"foo\") \"fboo\"))",
+            "(assert (= (insert \"b\" 2 \"foo\") \"fobo\"))",
+            "(assert (= (insert \"b\" 3 \"foo\") \"foob\"))",
+
+            "(assert (= (remove 0 \"a\") \"\"))",
+            "(assert (= (remove 1 \"a\") \"a\"))",
+            "(assert (= (remove -1 \"a\") \"a\"))",
+            "(assert (= (remove -1 \"ab\") \"ab\"))",
+            "(assert (= (remove 0 \"ab\") \"b\"))",
+            "(assert (= (remove 1 \"ab\") \"a\"))",
+            "(assert (= (remove 2 \"ab\") \"ab\"))",
+            "(assert (= (remove -242 \"foo\") \"foo\"))",
+            "(assert (= (remove 0 \"foo\") \"oo\"))",
+            "(assert (= (remove 1 \"foo\") \"fo\"))",
+            "(assert (= (remove 2 \"foo\") \"fo\"))",
+
+            "(assert (= (replace \"b\" 0 \"a\") \"b\"))",
+            "(assert (= (replace \"b\" 1 \"a\") \"a\"))",
+            "(assert (= (replace \"b\" -1 \"a\") \"a\"))",
+            "(assert (= (replace \"a\" 0 \"ab\") \"ab\"))",
+            "(assert (= (replace \"a\" 1 \"ab\") \"aa\"))",
+            "(assert (= (replace \"b\" 1 \"ab\") \"ab\"))",
+            "(assert (= (replace \"b\" -242 \"foo\") \"foo\"))",
+            "(assert (= (replace \"b\" 0 \"foo\") \"boo\"))",
+            "(assert (= (replace \"b\" 1 \"foo\") \"fbo\"))",
+            "(assert (= (replace \"b\" 2 \"foo\") \"fob\"))"
+     ]
+     full_input = wrap_formula(formula)
+     return full_input
+
 
 # Basic DP algorithm that computes the minimum edit distance to transform s1 into s2
 def just_compute_edit_distance(s1 : str, s2 : str) -> int:
