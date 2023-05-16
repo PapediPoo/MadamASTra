@@ -199,12 +199,14 @@ def get_sat_z3_formulas(s1 : str, s2 : str):
 # -> it is intended to be used to stress-test Z3 
 # (note that all the constant definitions are included as well)
 # The formula is UNSAT by construction, as it uses less insert/remove/replace operations than would be minimally needed to get from s1 to s2.
-def get_unsat_z3_formula(s1 : str, s2 : str) -> str:
+def get_unsat_z3_formula(s1 : str, s2 : str, seed=None) -> str:
     edit_distance = just_compute_edit_distance(s1, s2)
     formula = "\"" + s1 + "\""
     declarations = ""
     constraints = ""
     for i in range(edit_distance - 1): # by adding edit_distance - 1 insert/remove/replace operations we ensure that the formula will be UNSAT
+        if seed:
+            random.seed(seed)
         random_number = random.randint(0,2)
         if random_number == 1: # insert
             formula = "(insert str_const_" + str(i) + " int_const_" + str(i) + " " + formula + ")"
