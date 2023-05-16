@@ -6,7 +6,6 @@ bugs in Z3 by trying random words and configurations on Z3.
 
 import argparse
 from random import randint
-from z3_driver import Z3Driver
 from random_word import WordGenerator
 from c_printer import print_content, print_title
 from z3_tester import Z3Tester
