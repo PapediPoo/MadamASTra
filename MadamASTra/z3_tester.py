@@ -3,9 +3,9 @@ This module is an abstraction of the Z3 solver. You give it 2 words, and it trie
 It also compares the result of Z3 to the expected result.
 """
 
-from formula_generator import get_sat_z3_formulas, get_unsat_z3_formula, wrap_formula
+from formula_generator import get_sat_z3_formulas, get_unsat_z3_formula, wrap_formula, get_formula_for_checking_operator_definitions
 from z3_driver import Z3Driver
-from c_printer import print_content, print_warning, print_summary
+from c_printer import print_content, print_warning, print_summary, print_title
 
 class Z3Tester(object):
     '''
@@ -14,6 +14,13 @@ class Z3Tester(object):
     def __init__(self, verbose=False, timeout=5) -> None:
         self.z3_driver = Z3Driver(verbose, timeout)
         self.error_log = []
+
+        # sanity check
+        print_title("doing sanity check")
+        sanity_check_formula = get_formula_for_checking_operator_definitions()
+        sanity_check_result = self.z3_driver.run(sanity_check_formula)
+        assert "unsat" not in sanity_check_result
+        print_content("sanity check successful")
 
     def test(self, word1, word2, mode_config="sat", solver_config="seq") -> None:
         '''

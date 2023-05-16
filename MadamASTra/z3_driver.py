@@ -36,7 +36,6 @@ class Z3Driver():
         summary: given an SMT expression runs Z3 and returns its findings
         '''
         command = 'echo \'' + smt_expr.replace("'", "\"") + f"\' | z3 -in -smt2 -T:{self.timeout}"
-        print(command)
         result = subprocess.run(command, capture_output=True, shell=True, check=False)
         err_decoded = result.stderr.decode()
         if len(err_decoded) > 0:
