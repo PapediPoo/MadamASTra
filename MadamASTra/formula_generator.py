@@ -1,7 +1,8 @@
 import random
 import re
 import os
-
+import sys
+from typing import Tuple
 # Bookkeeping over multiple calls of compute_edit_distance:
 n_int_consts, n_str_consts, consts_to_vals = 0, 0, {}
 
@@ -197,7 +198,9 @@ def get_sat_z3_formulas(s1: str, s2: str):
 # -> it is intended to be used to stress-test Z3
 # (note that all the constant definitions are included as well)
 # The formula is UNSAT by construction, as it uses less insert/remove/replace operations than would be minimally needed to get from s1 to s2.
-def get_unsat_z3_formula(s1: str, s2: str, seed=None) -> str:
+# In addition to the formula this function also returns the seed that was used to generate the formula.
+# This is useful to be able to reproduce the formula later on.
+def get_unsat_z3_formula(s1: str, s2: str, seed=None) -> Tuple[str, int | float | bytes | bytearray]:
     edit_distance = just_compute_edit_distance(s1, s2)
     formula = "\"" + s1 + "\""
     declarations = ""
@@ -221,7 +224,7 @@ def get_unsat_z3_formula(s1: str, s2: str, seed=None) -> str:
             constraints += "(assert (= (str.len str_const_" + str(i) + ") 1))\n"
     formula = "(assert (= " + formula + " \"" + s2 + "\"))"
     generated_z3_formula = declarations + "\n" + constraints + "\n" + formula
-    return generated_z3_formula
+    return generated_z3_formula, seed
 
 
 def wrap_formula(formula: str, string_solver: str = "seq") -> str:
