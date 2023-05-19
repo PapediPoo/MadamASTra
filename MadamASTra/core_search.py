@@ -22,6 +22,7 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-wr", "--word-randomness", type=int, default=1, help="randomness of the length of words")
     parser.add_argument("-t", "--timeout", type=int, default=30, help="Z3 timeout [seconds]. default: 30")
     parser.add_argument("-v", "--verbose", action="store_true", help="makes the command line output more verbose")
+    parser.add_argument("--seed", type=int, help="the seed to use for the unsat mode")
 
 def run(args: argparse.Namespace) -> None:
     '''runs the search for bugs
@@ -57,7 +58,7 @@ def run(args: argparse.Namespace) -> None:
         mode_config, solver_config = configs[run_no % len(configs)]
 
         # run Z3
-        z3_tester.test(word1, word2, mode_config, solver_config)
+        z3_tester.test(word1, word2, mode_config, solver_config, seed=args.seed)
 
     # print errors
     print_title("done")

@@ -40,6 +40,9 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
                         action="store_true",
                         default=False,
                         help="retry until Z3 makes a mistake")
+    parser.add_argument("--seed",
+                        type=int,
+                        help="the seed to use for the unsat mode")
 
 
 def run(args: argparse.Namespace) -> None:
@@ -81,7 +84,7 @@ def run(args: argparse.Namespace) -> None:
         while not z3_tester.test(
                 args.word1,
                 args.word2,
-                *configs[config_index]):
+                *configs[config_index], seed=args.seed):
             config_index = (config_index + 1) % len(configs)
             print_title("retrying")
     else:
@@ -89,7 +92,7 @@ def run(args: argparse.Namespace) -> None:
         print_content("running Z3 once for each configuration")
         print_title("starting")
         for mode, solver in configs:
-            z3_tester.test(args.word1, args.word2, mode, solver)
+            z3_tester.test(args.word1, args.word2, mode, solver, seed=args.seed)
 
     print_title("done")
     z3_tester.print_errors()

@@ -2,6 +2,7 @@
 Responsible for printing consistently over the whole program
 '''
 import textwrap
+from colorama import Fore, Style
 
 BOXWIDTH = 20
 INDENT = 3
@@ -10,16 +11,16 @@ BOXFILL = " "
 INDENTGUARD = "|"
 
 # colors
-HEADER = '\033[95m'
-OKBLUE = '\033[94m'
-OKCYAN = '\033[96m'
-OKGREEN = '\033[92m'
-OKYELLOW = '\u001b[33m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
+HEADER = Fore.MAGENTA
+OKBLUE = Fore.BLUE
+OKCCYAN = Fore.CYAN
+OKGREEN = Fore.GREEN
+OKYELLOW = Fore.YELLOW
+WARNING = Fore.YELLOW
+FAIL = Fore.RED
+ENDC = Fore.RESET
+BOLD = Style.BRIGHT
+UNDERLINE = Style.DIM
 
 
 def print_title(content: str) -> None:
@@ -38,16 +39,16 @@ def print_warning(content: str) -> None:
         + ("WARNING! " + content).upper().center(BOXWIDTH, BOXFILL)
         + BOXGUARDS[1] + ENDC)
 
+def print_success(content: str) -> None:
+    '''prints a success message in a big centered block'''
+    print(
+        OKGREEN
+        + BOXGUARDS[0]
+        + ("SUCCESS! " + content).upper().center(BOXWIDTH, BOXFILL)
+        + BOXGUARDS[1] + ENDC)
+
 def print_content(content: str) -> None:
     '''prints content with an indent'''
     print(
         INDENTGUARD
         + textwrap.indent(content, " " * INDENT))
-
-def print_summary(contant: str) -> None:
-    '''prints a summary'''
-    print(
-        OKYELLOW
-        + BOXGUARDS[0]
-        + contant.center(BOXWIDTH, BOXFILL)
-        + BOXGUARDS[1] + ENDC)
