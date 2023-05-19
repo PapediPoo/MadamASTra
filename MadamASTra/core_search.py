@@ -5,6 +5,9 @@ bugs in Z3 by trying random words and configurations on Z3.
 """
 
 import argparse
+import alive_progress
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
 from random import randint
 from random_word import WordGenerator
 from c_printer import print_content, print_title
@@ -44,21 +47,34 @@ def run(args: argparse.Namespace) -> None:
         ("sat", "z3str3"),
         ("unsat", "z3str3")]
 
-    print_content(f"running {args.runs} times")
+    threads = 32
+
+    # define work for multiprocessing
+    words = wordgenerator.generate(number=args.runs * 2)
+
+    work = []
     for run_no in range(args.runs):
-        print_title(f"run {run_no+1}")
-
-        # generate words
-        word1 = wordgenerator.generate(args.word_length + randint(-args.word_randomness, args.word_randomness))
-        word2 = wordgenerator.generate(args.word_length + randint(-args.word_randomness, args.word_randomness))
-
-        print_content(f"words: {word1}, {word2}")
-
-        # generate SMT file
         mode_config, solver_config = configs[run_no % len(configs)]
+        word1 = words[run_no * 2]
+        word2 = words[run_no * 2 + 1]
+        work.append((word1, word2, mode_config, solver_config, args.seed))
 
-        # run Z3
-        z3_tester.test(word1, word2, mode_config, solver_config, seed=args.seed)
+    def worker(work_item):
+        # define worker function
+        word1, word2, mode_config, solver_config, seed = work_item
+        z3_tester.test(mode_config, solver_config, seed=seed)
+        print_content(f"words: {word1:10}, {word2:10}, mode: {mode_config:5}, solver: {solver_config:7}")
+
+    print_content(f"running {args.runs} times")
+
+    pool = ThreadPool(threads)
+    # define progress bar function
+    with alive_progress.alive_bar(args.runs) as progress:
+        for _ in pool.imap_unordered(worker, work):
+            progress()
+
+    pool.close()
+    pool.join()
 
     # print errors
     print_title("done")
