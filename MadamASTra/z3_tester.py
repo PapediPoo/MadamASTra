@@ -15,6 +15,7 @@ class Z3Tester(object):
     def __init__(self, verbose=False, timeout=5) -> None:
         self.z3_driver = Z3Driver(verbose, timeout)
         self.error_log = []
+        self.verbose = verbose
 
         # sanity check
         print_title("doing sanity check")
@@ -34,7 +35,7 @@ class Z3Tester(object):
         if seed is None:
             seed = randint(0, 2**32)
 
-        print(f"mode: {mode_config}, solver: {solver_config}, seed: {seed}")
+        # print(f"mode: {mode_config}, solver: {solver_config}, seed: {seed}")
         if mode_config == "sat":
             generated_z3_formula, _ = get_sat_z3_formulas(word1, word2)
             wrong_response_config = "unsat"
@@ -52,8 +53,10 @@ class Z3Tester(object):
         # run Z3
         z3_result = self.z3_driver.run(full_input)
 
+        if self.verbose:
+            print_content("Z3 Response: " + z3_result)
+
         # check if Z3 made a mistake
-        print_content("Z3 Response: " + z3_result)
         if wrong_response_config == z3_result.replace("\n", ""):
             print_warning("Z3 Made a mistake!")
             self.error_log.append((word1, word2, "solver: " + solver_config, "mode: " + mode_config, "seed: " + str(seed)))
