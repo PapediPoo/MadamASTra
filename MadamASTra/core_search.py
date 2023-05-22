@@ -18,14 +18,10 @@ def add_parser(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(run_mode="search")
     parser.set_defaults(run_method=run)
     parser.add_argument("-r", "--runs", type=int, default=5, help="number of times Z3 should be tested")
-    parser.add_argument("-wl", "--word-length",
-                        type=int,
-                        default=5,
-                        help="generated word length. Longer words => Z3 slower")
-    parser.add_argument("-wr", "--word-randomness", type=int, default=1, help="randomness of the length of words")
     parser.add_argument("-t", "--timeout", type=int, default=30, help="Z3 timeout [seconds]. default: 30")
     parser.add_argument("-v", "--verbose", action="store_true", help="makes the command line output more verbose")
     parser.add_argument("--seed", type=int, help="the seed to use for the unsat mode")
+    parser.add_argument("-p", "--processes", type=int, default=32, help="number of processes to use. default: 32")
 
 def run(args: argparse.Namespace) -> None:
     '''runs the search for bugs
@@ -47,7 +43,7 @@ def run(args: argparse.Namespace) -> None:
         ("sat", "z3str3"),
         ("unsat", "z3str3")]
 
-    threads = 32
+    threads = args.processes
 
     # define work for multiprocessing
     words = wordgenerator.generate(number=args.runs * 2)
