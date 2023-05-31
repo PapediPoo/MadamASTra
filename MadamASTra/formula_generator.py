@@ -177,8 +177,6 @@ def compute_edit_distance_and_generate_formula(s1: str, s2: str) -> str:
 # -> it is intended to check the correctness of the series of inserts/removes/replacements that we computed
 # Both formulas are SAT by construction.
 def get_sat_z3_formulas(s1: str, s2: str):
-    # TODO: Use Z3 to verify that reference_z3_formula evaluates to true (i.e., is SAT)
-    # TODO: Maybe replace some occurrences of "int_const_x" and/or "str_const_y"
     #       in generated_z3_formula with their corresponding values from consts_to_vals,
     #       because otherwise Z3 may take veeeery long and eventually return unknown.
     #       => How much of our rewriting do we have to "expose" for Z3 to succeed?
@@ -239,7 +237,6 @@ def wrap_formula(formula: str, string_solver: str = "seq") -> str:
     else:
         print("ERROR: Invalid string solver.")
         raise ValueError("Invalid string solver. Only z3str3 and seq are supported.")
-    # TODO: Add some further options, e.g. max compute time or max memory
     full_input += insert_in_smt + "\n"
     full_input += remove_in_smt + "\n"
     full_input += replace_in_smt + "\n"
