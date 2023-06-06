@@ -13,6 +13,8 @@ by Pascal Strebel and Robin Schmidiger
 
 [Progress Report](docs/ProgressReport.pdf)
 
+[Final Report](docs/FinalReport.pdf)
+
 MadamASTra provides a rich CLI interface. For more information, run `python3 MadamASTra --help`.
 
 ## Installation
